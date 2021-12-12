@@ -1,3 +1,10 @@
+# WORK IN PROGRESS
+
+I'm hacking around with this at the moment - almost
+nothing is tested. 
+
+The intention is to integrate with Kotlinx Serialization.
+
 # json5 Kotlin
 
 A JSON5 Library for Kotlin 1.6, Java 11  
