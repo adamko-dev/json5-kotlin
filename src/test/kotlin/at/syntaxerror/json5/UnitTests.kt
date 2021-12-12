@@ -24,6 +24,8 @@
 package at.syntaxerror.json5
 
 import at.syntaxerror.json5.config.Json5Options.StringifyOptions.Format
+import at.syntaxerror.json5.structure.JSONArray
+import at.syntaxerror.json5.structure.JSONObject
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId

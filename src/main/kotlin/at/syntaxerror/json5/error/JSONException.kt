@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package at.syntaxerror.json5
+package at.syntaxerror.json5.error
 
 /**
  * An exception used by the JSON5 for Java Library if something went wrong

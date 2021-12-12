@@ -1,6 +1,10 @@
 package at.syntaxerror.json5
 
 import at.syntaxerror.json5.config.Json5Options
+import at.syntaxerror.json5.parse.JSONParser
+import at.syntaxerror.json5.parse.Json5ObjectParser
+import at.syntaxerror.json5.stringify.JSONStringify
+import at.syntaxerror.json5.structure.JSONObject
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.StringReader

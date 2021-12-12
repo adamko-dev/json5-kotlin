@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package at.syntaxerror.json5
+package at.syntaxerror.json5.parse
 
-import at.syntaxerror.json5.JSONException.JSONParseError
-import at.syntaxerror.json5.JSONException.JSONSyntaxError
+import at.syntaxerror.json5.error.JSONException
+import at.syntaxerror.json5.error.JSONException.JSONParseError
+import at.syntaxerror.json5.error.JSONException.JSONSyntaxError
 import at.syntaxerror.json5.config.Json5Options
 import at.syntaxerror.json5.config.Json5Options.ParserOptions.UnicodeSurrogate.LENIENT
 import java.io.BufferedReader

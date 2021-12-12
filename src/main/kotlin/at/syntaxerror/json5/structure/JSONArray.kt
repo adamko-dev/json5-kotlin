@@ -21,8 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package at.syntaxerror.json5
+package at.syntaxerror.json5.structure
 
+import at.syntaxerror.json5.error.JSONException
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.function.Function

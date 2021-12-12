@@ -1,6 +1,8 @@
-package at.syntaxerror.json5
+package at.syntaxerror.json5.parse
 
+import at.syntaxerror.json5.error.JSONException
 import at.syntaxerror.json5.config.Json5Options
+import at.syntaxerror.json5.structure.JSONObject
 import java.io.Reader
 
 class Json5ObjectParser(
