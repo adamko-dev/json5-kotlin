@@ -1,6 +1,6 @@
-# json5 [![javadoc](https://img.shields.io/endpoint?label=javadoc&url=https%3A%2F%2Fjavadoc.syntaxerror.at%2Fjson5%2F%3Fbadge%3Dtrue%26version%3Dlatest)](https://javadoc.syntaxerror.at/json5/latest) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Synt4xErr0r4/json5/Java%20CI%20with%20Maven)
+# json5 Kotlin
 
-A JSON5 Library for Java (11+)  
+A JSON5 Library for Kotlin 1.6, Java 11  
 
 ## Overview
 
@@ -11,51 +11,54 @@ This is a reference implementation, capable of parsing JSON5 data according to t
 ## Getting started
 
 In order to use the code, you can either [download the jar](https://github.com/Synt4xErr0r4/json5/releases/download/1.2.0/json5-1.2.0.jar), or use the Maven dependency:
-```xml
-<!-- Repository -->
 
-<repository>
-  <id>syntaxerror.at</id>
-  <url>https://maven.syntaxerror.at</url>
-</repository>
+```kotlin
+repositories {
+  maven("https://jitpack.io")
+}
 
-<!-- Dependency -->
-
-<dependency>
-  <groupId>at.syntaxerror</groupId>
-  <artifactId>json5</artifactId>
-  <version>1.2.0</version>
-</dependency>
+dependencies {
+  implementation("adamko-dev:json5-kotlin:${version}")
+}
 ```
 
-The library itself is located in the module `json5`.
+
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>adamko-dev</groupId>
+    <artifactId>json5-kotlin</artifactId>
+    <version>${json5-kotlin.version}</version>
+  </dependency>
+</dependencies>
+```
 
 ## Usage
 
 ### Deserializing (Parsing)
 
 To parse a JSON object (`{ ... }`), all you need to do is:
-```java
-import at.syntaxerror.json5.JSONObject;
+```kotlin
+import at.syntaxerror.json5.JSONObject
 
-//...
-
-JSONObject jsonObject = new JSONObject("{ ... }");
+val jsonObject = JSONObject("{ ... }");
 ```
 
 Or if you want to read directly from a `Reader` or `InputStream`:
-```java
+```kotlin
 import java.io.InputStream;
 import at.syntaxerror.json5.JSONObject;
 
-//...
+val stream : InputStream = ...
+val jsonObject = stream.use { JSONObject(new JSONParser(it)) }
 
-try(InputStream stream = ...) {
-    JSONObject jsonObject = new JSONObject(new JSONParser(stream));
-    // ...
-} catch (Exception e) {
-    //...
-}
 ```
 
 Just replace `JSONObject` with `JSONArray` to read list-like data (`[ ... ]`).  
@@ -71,7 +74,7 @@ The `indentFactor` of the `toString(int indentFactor)` method will enable pretty
 Any value `< 1` will disable pretty-printing. The indent factor indicates the number of spaces before each key-value pair/ value:
 
 `indentFactor = 2`
-```json
+```json5
 {
   "key0": "value0",
   "key1": {
@@ -90,7 +93,7 @@ Any value `< 1` will disable pretty-printing. The indent factor indicates the nu
 ```
 
 `indentFactor = 0`
-```json
+```json5
 {"key0":"value0","key1":{"nested":123},"key2":false}
 
 ["value",{"nested":123},false]
@@ -141,25 +144,25 @@ You can also set the default options used if the supplied options are `null`, by
 The following options are currently implemented:
 
 - `parseInstants`: (default `true`, *Parser-only*) ([proposed here](https://github.com/json5/json5-spec/issues/4))  
-    Whether or not instants should be parsed as such.  
+    Whether instants should be parsed as such.  
     If this is `false`, `parseStringInstants` and `parseUnixInstants` are ignored
 - `parseStringInstants`: (default `true`, *Parser-only*) ([proposed here](https://github.com/json5/json5-spec/issues/4))  
-    Whether or not string instants (according to [RFC 3339, Section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6)) should be parsed as such.  
+    Whether string instants (according to [RFC 3339, Section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6)) should be parsed as such.  
     Ignored if `parseInstants` is `false`
 - `parseUnixInstants`: (default `true`, *Parser-only*) ([proposed here](https://github.com/json5/json5-spec/issues/4))  
-    Whether or not unix instants (integers) should be parsed as such.  
+    Whether unix instants (integers) should be parsed as such.  
     Ignored if `parseInstants` is `false`
 - `stringifyUnixInstants`: (default `false`, *Stringify-only*) ([proposed here](https://github.com/json5/json5-spec/issues/4))  
-    Whether or not instants should be stringifyed as unix timestamps (integers).  
+    Whether instants should be stringifyed as unix timestamps (integers).  
     If this is `false`, instants will be stringifyed as strings (according to [RFC 3339, Section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6))
 - `allowNaN`: (default `true`, *Parser-only*) ([proposed here](https://github.com/json5/json5-spec/issues/24))  
-    Whether or not `NaN` should be allowed as a number
+    Whether `NaN` should be allowed as a number
 - `allowInfinity`: (default `true`, *Parser-only*) ([proposed here](https://github.com/json5/json5-spec/issues/24))  
-    Whether or not `Infinity` should be allowed as a number. This applies to both `+Infinity` and `-Infinity`
+    Whether `Infinity` should be allowed as a number. This applies to both `+Infinity` and `-Infinity`
 - `allowInvalidSurrogates`: (default `true`, *Parser-only*) ([proposed here](https://github.com/json5/json5-spec/issues/12))  
-    Whether or not invalid unicode surrogate pairs should be allowed
+    Whether invalid unicode surrogate pairs should be allowed
 - `quoteSingle`: (default `false`, *Stringify-only*)  
-    Whether or not string should be single-quoted (`'`) instead of double-quoted (`"`). This also includes a JSONObject's member names
+    Whether string should be single-quoted (`'`) instead of double-quoted (`"`). This also includes a JSONObject's member names
 
 ### v1.2.0
 
