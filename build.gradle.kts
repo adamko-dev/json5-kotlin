@@ -1,13 +1,20 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "1.6.0"
+  val kotlinVersion = "1.6.0"
+  kotlin("jvm") version kotlinVersion
+  kotlin("plugin.serialization") version kotlinVersion
   jacoco
 }
 
 dependencies {
 
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
+
+
+  implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.3.1"))
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-core")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json")
 
   val junitVersion = "5.8.2"
   testImplementation(enforcedPlatform("org.junit:junit-bom:$junitVersion"))

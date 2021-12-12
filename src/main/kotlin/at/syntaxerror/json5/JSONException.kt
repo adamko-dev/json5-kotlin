@@ -34,5 +34,7 @@ open class JSONException(message: String?, cause: Throwable? = null) : Exception
   class JSONParseError(message: String?, cause: Throwable? = null) : JSONException(message, cause)
   class JSONSyntaxError(message: String?) : JSONException(message)
 
+  class Json5TypeException(message: String?, cause: Throwable? = null) : JSONException(message, cause)
+
 }
 

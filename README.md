@@ -22,7 +22,6 @@ dependencies {
 }
 ```
 
-
 ```xml
 <repositories>
   <repository>

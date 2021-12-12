@@ -23,6 +23,9 @@
  */
 package at.syntaxerror.json5
 
+import at.syntaxerror.json5.config.Json5Options
+import at.syntaxerror.json5.config.Json5Options.StringifyOptions.Format
+import at.syntaxerror.json5.constants.CharUnicode
 import java.time.Instant
 
 /**
@@ -31,92 +34,86 @@ import java.time.Instant
  *
  * @author SyntaxError404
  */
-object JSONStringify {
+class JSONStringify(
+  private val options: Json5Options,
+) {
+  private val indent = when (val format = options.stringifyOptions.formatting) {
+    is Format.Compact -> null
+    is Format.Pretty  -> format.indentation
+  }
+  private val quotationToken = options.stringifyOptions.quoteSingle
+  private val quotationTokenDouble = "$quotationToken$quotationToken"
 
-  fun jsonObjectToString(
-    obj: JSONObject,
-    options: JSONOptions,
-    indent: String = "",
-    indentFactor: Int = 0,
-  ): String {
-    val indentFactor = indentFactor.coerceAtLeast(0)
+
+  fun jsonObjectToString(obj: JSONObject): String {
 
     val sb = StringBuilder()
-    val childIndent = indent + " ".repeat(indentFactor)
     sb.append('{')
-
     for ((key: String, value: Any?) in obj) {
       if (sb.length != 1) sb.append(',')
-      if (indentFactor > 0) sb.append('\n').append(childIndent)
-      sb.append(quote(key, options))
-        .append(':')
-      if (indentFactor > 0) sb.append(' ')
-      sb.append(toString(value, childIndent, indentFactor, options))
+      if (indent != null) sb.append('\n').append(indent)
+      sb.append(quote(key)).append(':')
+      if (indent != null) sb.append(' ')
+      sb.append(anyToString(value))
     }
-    if (indentFactor > 0) sb.append('\n').append(indent)
+    if (indent != null) sb.append('\n').append(indent)
     sb.append('}')
+
     return sb.toString()
   }
 
-  fun jsonArrayToString(
-    array: JSONArray,
-    options: JSONOptions,
-    indent: String = "",
-    indentFactor: Int = 0,
-  ): String {
-    val indentFactor = indentFactor.coerceAtLeast(0)
+  fun jsonArrayToString(array: JSONArray): String {
 
     val sb = StringBuilder()
-    val childIndent = indent + " ".repeat(indentFactor)
+
     sb.append('[')
     for (value in array) {
       if (sb.length != 1) sb.append(',')
-      if (indentFactor > 0) sb.append('\n').append(childIndent)
-      sb.append(toString(value, childIndent, indentFactor, options))
+      if (indent != null) sb.append('\n').append(indent)
+      sb.append(anyToString(value))
     }
-    if (indentFactor > 0) sb.append('\n').append(indent)
+    if (indent != null) sb.append('\n').append(indent)
     sb.append(']')
     return sb.toString()
   }
 
-  private fun toString(
+    fun anyToString(
     value: Any?,
-    indent: String,
-    indentFactor: Int,
-    options: JSONOptions,
   ): String {
     if (value == null) return "null"
-    if (value is JSONObject) return jsonObjectToString(value, options, indent, indentFactor)
-    if (value is JSONArray) return jsonArrayToString(value, options, indent, indentFactor)
-    if (value is String) return quote(value as String?, options)
+    if (value is JSONObject) return jsonObjectToString(value)
+    if (value is JSONArray) return jsonArrayToString(value)
+    if (value is String) return quote(value as String?)
     if (value is Instant) {
-      return if (options.stringifyUnixInstants) value.epochSecond.toString() else quote(
-        value.toString(),
-        options
-      )
+      return if (options.stringifyOptions.stringifyUnixInstants) {
+        value.epochSecond.toString()
+      } else {
+        quote(value.toString())
+      }
     }
     if (value is Double) {
-      if (!options.allowNaN && java.lang.Double.isNaN(value)) throw JSONException("Illegal NaN in JSON")
-      if (!options.allowInfinity && java.lang.Double.isInfinite(value)) throw JSONException("Illegal Infinity in JSON")
+      if (!options.allowNaN && value.isNaN()) throw JSONException("Illegal NaN in JSON")
+      if (!options.allowInfinity && value.isInfinite()) throw JSONException("Illegal Infinity in JSON")
     }
     return value.toString()
   }
 
-  fun quote(string: String?, options: JSONOptions): String {
+  fun quote(string: String?): String {
 
-    if (string == null || string.isEmpty()) return if (options.quoteSingle) "''" else "\"\""
-    val qt = if (options.quoteSingle) '\'' else '"'
+    if (string.isNullOrEmpty())
+      return quotationTokenDouble
+
     val quoted = StringBuilder(string.length + 2)
-    quoted.append(qt)
+    quoted.append(quotationToken)
     for (c in string.toCharArray()) {
-      if (c == qt) {
+      if (c == quotationToken) {
         quoted.append('\\')
         quoted.append(c)
       } else {
         quoted.append(escapeChar(c) ?: c)
       }
     }
-    quoted.append(qt)
+    quoted.append(quotationToken)
     return quoted.toString()
   }
 

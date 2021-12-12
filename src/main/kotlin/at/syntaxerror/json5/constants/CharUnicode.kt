@@ -1,4 +1,4 @@
-package at.syntaxerror.json5
+package at.syntaxerror.json5.constants
 
 object CharUnicode {
 

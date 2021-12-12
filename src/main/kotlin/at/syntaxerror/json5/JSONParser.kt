@@ -23,14 +23,12 @@
  */
 package at.syntaxerror.json5
 
-//import at.syntaxerror.json5.JSONOptions.Companion.defaultOptions
 import at.syntaxerror.json5.JSONException.JSONParseError
 import at.syntaxerror.json5.JSONException.JSONSyntaxError
+import at.syntaxerror.json5.config.Json5Options
+import at.syntaxerror.json5.config.Json5Options.ParserOptions.UnicodeSurrogate.LENIENT
 import java.io.BufferedReader
-import java.io.InputStream
-import java.io.InputStreamReader
 import java.io.Reader
-import java.io.StringReader
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -44,9 +42,9 @@ import java.util.regex.Pattern
  *
  * @author SyntaxError404
  */
-class JSONParser constructor(
+open class JSONParser(
   reader: Reader,
-  val options: JSONOptions = JSONOptions(),
+  private val options: Json5Options = Json5Options(),
 ) {
   private val reader: Reader = if (reader.markSupported()) reader else BufferedReader(reader)
 
@@ -64,22 +62,6 @@ class JSONParser constructor(
   private var previous: Char = Char.MIN_VALUE
   /** the current character  */
   private var current: Char = Char.MIN_VALUE
-
-  /**
-   * Constructs a new JSONParser from an InputStream. The stream is not [closed][InputStream.close].
-   *
-   * @since 1.1.0
-   */
-  constructor(stream: InputStream?, options: JSONOptions = JSONOptions())
-      : this(InputStreamReader(stream), options)
-
-  /**
-   * Constructs a new JSONParser from a string
-   *
-   * @since 1.1.0
-   */
-  constructor(source: String, options: JSONOptions = JSONOptions()) :
-      this(StringReader(source), options)
 
   private fun more(): Boolean {
     return if (back || eof) back && !eof else peek().code > 0
@@ -232,7 +214,7 @@ class JSONParser constructor(
   }
 
   private fun checkSurrogate(hi: Char, lo: Char) {
-    if (options.allowInvalidSurrogates) return
+    if (options.parserOptions.allowInvalidSurrogates == LENIENT) return
     if (!Character.isHighSurrogate(hi) || !Character.isLowSurrogate(lo)) return
     if (!Character.isSurrogatePair(hi, lo))
       throw JSONSyntaxError(
@@ -389,7 +371,7 @@ class JSONParser constructor(
     when (val n = nextClean()) {
       '"', '\'' -> {
         val string = nextString(n)
-        if (options.parseInstants && options.parseStringInstants) try {
+        if (options.parserOptions.parseInstants && options.parserOptions.parseStringInstants) try {
           return Instant.parse(string)
         } catch (ignored: Exception) {
         }
@@ -397,11 +379,11 @@ class JSONParser constructor(
       }
       '{'       -> {
         back()
-        return JSONObject(this)
+        return Json5ObjectParser(reader, options).parseObject()
       }
       '['       -> {
         back()
-        return JSONArray(this)
+        return Json5ArrayParser(reader, options).parse()
       }
     }
     back()
@@ -410,7 +392,7 @@ class JSONParser constructor(
     if (PATTERN_BOOLEAN.matcher(string).matches()) return string == "true"
     if (PATTERN_NUMBER_INTEGER.matcher(string).matches()) {
       val bigint = BigInteger(string)
-      if (options.parseInstants && options.parseUnixInstants) try {
+      if (options.parserOptions.parseInstants && options.parserOptions.parseUnixInstants) try {
         val unix = bigint.longValueExact()
         return Instant.ofEpochSecond(unix)
       } catch (ignored: Exception) {
