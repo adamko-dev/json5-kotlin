@@ -25,9 +25,7 @@ import org.intellij.lang.annotations.Language
 
 class JSONParserTests : BehaviorSpec({
 
-  val j5 = Json5Module {
-    parseInstants = false
-  }
+  val j5 = Json5Module()
 
   Given("a valid json5 array") {
     @Language("JSON5")

@@ -34,7 +34,6 @@ dependencies {
 group = "at.syntaxerror"
 version = "2.0.0"
 description = "JSON5 for Kotlin"
-//java.sourceCompatibility = JavaVersion.VERSION_11
 
 java {
   withSourcesJar()

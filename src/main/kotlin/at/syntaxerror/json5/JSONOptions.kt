@@ -31,53 +31,12 @@ package at.syntaxerror.json5
  */
 data class JSONOptions(
   /**
-   * Whether instants should be parsed as such.
-   * If this is `false`, [.parseStringInstants] and [.parseUnixInstants]
-   * are ignored
-   *
-   *
-   * Default: `true`
-   *
-   *
-   * *This is a [Parser][JSONParser]-only option*
-   */
-  var parseInstants: Boolean = true,
-  /**
-   * Whether string instants (according to
-   * [RFC 3339, Section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6))
-   * should be parsed as such.
-   * Ignored if [.parseInstants] is `false`
-   *
-   * Default: `true`
-   *
-   * *This is a [Parser][JSONParser]-only option*
-   */
-  var parseStringInstants: Boolean = true,
-  /**
-   * Whether unix instants (integers) should be parsed as such.
-   * Ignored if [.parseInstants] is `false`
-   *
-   * Default: `true`
-   *
-   * *This is a [Parser][JSONParser]-only option*
-   */
-  var parseUnixInstants: Boolean = true,
-  /**
-   * Whether instants should be stringifyed as unix timestamps.
-   * If this is `false`, instants will be stringifyed as strings
-   * (according to [RFC 3339, Section 5.6](https://datatracker.ietf.org/doc/html/rfc3339#section-5.6)).
-   *
-   * Default: `false`
-   *
-   * *This is a [Stringify][JSONStringify]-only option*
-   */
-  var stringifyUnixInstants: Boolean = false,
-  /**
    * Whether `NaN` should be allowed as a number
    *
    * Default: `true`
    */
   var allowNaN: Boolean = true,
+
   /**
    * Whether `Infinity` should be allowed as a number.
    * This applies to both `+Infinity` and `-Infinity`
@@ -85,6 +44,7 @@ data class JSONOptions(
    * Default: `true`
    */
   var allowInfinity: Boolean = true,
+
   /**
    * Whether invalid unicode surrogate pairs should be allowed
    *
@@ -93,13 +53,16 @@ data class JSONOptions(
    * *This is a [Parser][JSONParser]-only option*
    */
   var allowInvalidSurrogates: Boolean = true,
+
   /**
    * Whether string should be single-quoted (`'`) instead of double-quoted (`"`).
-   * This also includes a [JSONObject&#39;s][DecodeJson5Object] member names
+   * This also includes a [JSONObject's][DecodeJson5Object] member names
    *
    * Default: `false`
    *
    * *This is a [Stringify][JSONStringify]-only option*
    */
   var quoteSingle: Boolean = false,
+
+  var indentFactor: UInt = 2u
 )

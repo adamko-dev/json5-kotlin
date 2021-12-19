@@ -50,9 +50,7 @@ import org.junit.jupiter.params.provider.ValueSource
  */
 internal class UnitTests {
 
-  private val j5 = Json5Module {
-    parseInstants = false
-  }
+  private val j5 = Json5Module()
 
   @ParameterizedTest(name = "{index}: {0}")
   @CsvSource(
@@ -80,9 +78,6 @@ single quote in single-quoted string  |  'Test \' 123'  |  Test ' 123
 
   @Test
   fun testStringify() {
-    val testOptions = JSONOptions(stringifyUnixInstants = true)
-    val stringify = JSONStringify(testOptions)
-
     val jsonObject = buildJsonObject {
       put("a", null as String?)
       put("b", false)
@@ -119,10 +114,10 @@ single quote in single-quoted string  |  'Test \' 123'  |  Test ' 123
     // TODO set up Instant encode/decode
     //      "k": 1639908193
     assertAll(
-      { assertEquals(expected, stringify.encodeObject(jsonObject, 2u)) },
+      { assertEquals(expected, j5.encodeToString(jsonObject)) },
       {
         val parsedValue = j5.decodeObject(expected)
-        assertEquals(expected, stringify.encodeObject(parsedValue, 2u))
+        assertEquals(expected, j5.encodeToString(parsedValue))
       },
     )
   }
@@ -201,27 +196,6 @@ single quote in single-quoted string  |  'Test \' 123'  |  Test ' 123
     assertEquals("b", parsedValue["a"]?.jsonPrimitive?.contentOrNull)
   }
 
-//  @Test
-//  fun testInstant() {
-//
-//    JSONOptions.defaultOptions.parseInstants = true
-//
-//    assertTrue(
-//      objectDecoder.decodeString("{a:1338150759534}")
-//        .isInstant("a")
-//    )
-//    assertEquals(
-//      objectDecoder.decodeString("{a:1338150759534}")
-//        .getLong("a"),
-//      1338150759534L
-//    )
-//    assertEquals(
-//      objectDecoder.decodeString("{a:'2001-09-09T01:46:40Z'}")
-//        .getString("a"),
-//      "2001-09-09T01:46:40Z"
-//    )
-//  }
-
   @Test
   fun testHex() {
 
@@ -257,6 +231,5 @@ single quote in single-quoted string  |  'Test \' 123'  |  Test ' 123
       parsedObject["a"]?.jsonPrimitive?.doubleOrNull?.isInfinite() == true
     )
   }
-
 
 }

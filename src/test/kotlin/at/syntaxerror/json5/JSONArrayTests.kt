@@ -17,9 +17,7 @@ import kotlinx.serialization.json.JsonPrimitive
 
 class JSONArrayTests : BehaviorSpec({
 
-  val j5 = Json5Module {
-    parseInstants = false
-  }
+  val j5 = Json5Module { }
 
   Given("a JSON5 array should start with '['") {
     val validArrayStarter = '['

@@ -40,7 +40,7 @@ class Json5Module(
     }
   }
 
-  fun encodeToString(array: JsonArray) = stringify.encodeArray(array, 2u)
-  fun encodeToString(jsonObject: JsonObject) = stringify.encodeObject(jsonObject, 2u)
+  fun encodeToString(array: JsonArray) = stringify.encodeArray(array)
+  fun encodeToString(jsonObject: JsonObject) = stringify.encodeObject(jsonObject)
 
 }

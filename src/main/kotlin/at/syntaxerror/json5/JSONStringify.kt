@@ -23,7 +23,6 @@
  */
 package at.syntaxerror.json5
 
-import java.time.Instant
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 
@@ -39,6 +38,7 @@ class JSONStringify(
 
   private val quoteToken = if (options.quoteSingle) '\'' else '"'
   private val emptyString = "$quoteToken$quoteToken"
+  private val indentFactor = options.indentFactor
 
   /**
    * Converts a JSONObject into its string representation. The indentation factor enables
@@ -65,7 +65,6 @@ class JSONStringify(
    */
   fun encodeObject(
     jsonObject: JsonObject,
-    indentFactor: UInt,
     indent: String = "",
   ): String {
     val childIndent = indent + " ".repeat(indentFactor.toInt())
@@ -84,7 +83,7 @@ class JSONStringify(
       if (isIndented) {
         sb.append(' ')
       }
-      sb.append(encode(value, childIndent, indentFactor))
+      sb.append(encode(value, childIndent))
     }
     if (isIndented) {
       sb.append('\n').append(indent)
@@ -117,7 +116,6 @@ class JSONStringify(
    */
   fun encodeArray(
     array: JsonArray,
-    indentFactor: UInt,
     indent: String = "",
   ): String {
     val childIndent = indent + " ".repeat(indentFactor.toInt())
@@ -132,7 +130,7 @@ class JSONStringify(
       if (isIndented) {
         sb.append('\n').append(childIndent)
       }
-      sb.append(encode(value, childIndent, indentFactor))
+      sb.append(encode(value, childIndent))
     }
     if (isIndented) {
       sb.append('\n').append(indent)
@@ -144,20 +142,12 @@ class JSONStringify(
   private fun encode(
     value: Any?,
     indent: String,
-    indentFactor: UInt,
   ): String {
     return when (value) {
       null          -> "null"
-      is JsonObject -> encodeObject(value, indentFactor, indent)
-      is JsonArray  -> encodeArray(value, indentFactor, indent)
+      is JsonObject -> encodeObject(value, indent)
+      is JsonArray  -> encodeArray(value, indent)
       is String     -> escapeString(value)
-      is Instant    -> {
-        if (options.stringifyUnixInstants) {
-          value.epochSecond.toString()
-        } else {
-          escapeString(value.toString())
-        }
-      }
       is Double     -> {
         when {
           !options.allowNaN && value.isNaN()           -> throw JSONException("Illegal NaN in JSON")
