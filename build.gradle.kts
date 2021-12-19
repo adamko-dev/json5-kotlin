@@ -9,9 +9,10 @@ plugins {
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
-  implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlinx:kotlinx-serialization-bom:1.3.1"))
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-core")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json")
+  val kotlinxSerializationVersion = "1.3.1"
+  implementation(project.dependencies.enforcedPlatform("org.jetbrains.kotlinx:kotlinx-serialization-bom:$kotlinxSerializationVersion"))
+  api("org.jetbrains.kotlinx:kotlinx-serialization-core")
+  api("org.jetbrains.kotlinx:kotlinx-serialization-json")
 
   val junitVersion = "5.8.2"
   testImplementation(enforcedPlatform("org.junit:junit-bom:$junitVersion"))
