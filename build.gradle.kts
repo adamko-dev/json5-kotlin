@@ -32,7 +32,7 @@ dependencies {
 }
 
 group = "at.syntaxerror"
-version = "2.0.1"
+version = "2.0.2"
 description = "JSON5 for Kotlin"
 
 java {
