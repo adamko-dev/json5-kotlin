@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  val kotlinVersion = "1.6.10"
-  kotlin("jvm") version kotlinVersion
+  kotlin("jvm") version "1.6.10"
   jacoco
   `java-library`
+  id("me.qoomon.git-versioning") version "5.1.1"
   `maven-publish`
 }
 
@@ -13,8 +13,8 @@ dependencies {
 
   val kotlinxSerializationVersion = "1.3.1"
   implementation(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:$kotlinxSerializationVersion"))
-  api("org.jetbrains.kotlinx:kotlinx-serialization-core")
-  api("org.jetbrains.kotlinx:kotlinx-serialization-json")
+  api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
+  api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
 
   val junitVersion = "5.8.2"
   testImplementation(platform("org.junit:junit-bom:$junitVersion"))
@@ -32,8 +32,17 @@ dependencies {
 }
 
 group = "at.syntaxerror"
-version = "2.0.2"
 description = "JSON5 for Kotlin"
+version = "0.0.0-SNAPSHOT"
+gitVersioning.apply {
+  refs {
+    branch(".+") { version = "\${ref}-SNAPSHOT" }
+    tag("v(?<version>.*)") { version = "\${ref.version}" }
+  }
+
+  // optional fallback configuration in case of no matching ref configuration
+  rev { version = "\${commit}" }
+}
 
 java {
   withJavadocJar()
@@ -94,9 +103,10 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.wrapper {
-  gradleVersion = "7.3.2"
+  gradleVersion = "7.3.3"
   distributionType = Wrapper.DistributionType.ALL
 }
+tasks.assemble { dependsOn(tasks.wrapper) }
 
 tasks.javadoc {
   if (JavaVersion.current().isJava9Compatible) {
