@@ -23,6 +23,9 @@
  */
 package at.syntaxerror.json5
 
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.comparables.shouldBeEqualComparingTo
+import io.kotest.matchers.throwable.shouldHaveMessage
 import java.time.Instant
 import java.util.stream.Stream
 import kotlinx.serialization.json.buildJsonObject
@@ -39,6 +42,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.params.ParameterizedTest
@@ -122,52 +126,58 @@ single quote in single-quoted string  |  'Test \' 123'  |  Test ' 123
     )
   }
 
-  @TestFactory
-  fun `test escaped characters`(): Stream<DynamicTest> {
-    return listOf(
-      """ \n     """ to '\n',
-      """ \r     """ to '\r',
-      """ \u000c """ to '\u000c',
-      """ \b     """ to '\b',
-      """ \t     """ to '\t',
-      """ \v     """ to '\u000B',
-      """ \0     """ to '\u0000',
-      """ \u12Fa """ to '\u12Fa',
-      """ \u007F """ to '\u007F',
-    )
-      .map { (input, expectedChar) -> input.trim() to expectedChar }
-      .map { (input, expectedChar) ->
-        dynamicTest("expect escaped char '$input is mapped to actual char value") {
-          val parsedValue = j5.decodeObject("""{ a: "$input" }""")
-          assertTrue(parsedValue.containsKey("a"))
-          assertEquals(expectedChar.toString(), parsedValue["a"]?.jsonPrimitive?.contentOrNull)
-        }
-      }.stream()
-  }
 
-  @Test
-  fun testEscapes() {
+  @Nested
+  inner class EscapingCharacters {
 
-    val inputValue = """\n\r\u000c\b\t\v\0\u12Fa\x7F"""
-    val expectedValue = "\n\r\u000c\b\t\u000B\u0000\u12Fa\u007F"
+    @TestFactory
+    fun `test escaped characters`(): Stream<DynamicTest> {
+      return listOf(
+        """ \n     """ to '\n',
+        """ \r     """ to '\r',
+        """ \u000c """ to '\u000c',
+        """ \b     """ to '\b',
+        """ \t     """ to '\t',
+        """ \v     """ to '\u000B',
+        """ \0     """ to '\u0000',
+        """ \u12Fa """ to '\u12Fa',
+        """ \u007F """ to '\u007F',
+      )
+        .map { (input, expectedChar) -> input.trim() to expectedChar }
+        .map { (input, expectedChar) ->
+          dynamicTest("expect escaped char '$input is mapped to actual char value") {
+            val parsedValue = j5.decodeObject("""{ a: "$input" }""")
+            assertTrue(parsedValue.containsKey("a"))
+            assertEquals(expectedChar.toString(), parsedValue["a"]?.jsonPrimitive?.contentOrNull)
+          }
+        }.stream()
+    }
 
-    val parsedValue = j5.decodeObject("""{ a: "$inputValue" }""")
+    @Test
+    fun testEscapes() {
 
-    assertTrue(parsedValue.containsKey("a"))
-    assertEquals(expectedValue, parsedValue["a"]?.jsonPrimitive?.contentOrNull)
-  }
+      val inputValue = """\n\r\u000c\b\t\v\0\u12Fa\x7F"""
+      val expectedValue = "\n\r\u000c\b\t\u000B\u0000\u12Fa\u007F"
 
-  @Test
-  fun testMemberName() {
-    // note: requires UTF-8
+      val parsedValue = j5.decodeObject("""{ a: "$inputValue" }""")
 
-    val inputKey = "\$Lorem\\u0041_Ipsum123指事字"
-    val expectedKey = "\$LoremA_Ipsum123指事字"
+      assertTrue(parsedValue.containsKey("a"))
+      assertEquals(expectedValue, parsedValue["a"]?.jsonPrimitive?.contentOrNull)
+    }
 
-    val parsedValue = j5.decodeObject("{ $inputKey: 0 }")
+    @Test
+    fun testMemberName() {
+      // note: requires UTF-8
 
-    assertTrue(parsedValue.containsKey(expectedKey))
-    assertEquals(0, parsedValue[expectedKey]?.jsonPrimitive?.longOrNull)
+      val inputKey = "\$Lorem\\u0041_Ipsum123指事字"
+      val expectedKey = "\$LoremA_Ipsum123指事字"
+
+      val parsedValue = j5.decodeObject("{ $inputKey: 0 }")
+
+      assertTrue(parsedValue.containsKey(expectedKey))
+      assertEquals(0, parsedValue[expectedKey]?.jsonPrimitive?.longOrNull)
+    }
+
   }
 
   @ParameterizedTest
@@ -206,30 +216,81 @@ single quote in single-quoted string  |  'Test \' 123'  |  Test ' 123
     assertEquals(0xCAFEBABE, actualValue)
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = ["NaN", "-NaN", "+NaN"])
-  fun `expect NaN value is parsed to NaN Double`(nanValue: String) {
 
-    val jsonString = """ { a: $nanValue } """
-    val parsedObject = j5.decodeObject(jsonString)
+  @Nested
+  inner class Doubles {
 
-    assertTrue(parsedObject.containsKey("a"))
-    assertTrue(
-      parsedObject["a"]?.jsonPrimitive?.doubleOrNull?.isNaN() == true
-    )
+    @ParameterizedTest
+    @ValueSource(strings = ["NaN", "-NaN", "+NaN"])
+    fun `expect NaN value is parsed to NaN Double`(nanValue: String) {
+
+      val jsonString = """ { a: $nanValue } """
+      val parsedObject = j5.decodeObject(jsonString)
+
+      assertTrue(parsedObject.containsKey("a"))
+      assertTrue(
+        parsedObject["a"]?.jsonPrimitive?.doubleOrNull?.isNaN() == true
+      )
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["Infinity", "-Infinity", "+Infinity"])
+    fun `expect Infinity value is parsed to Infinite Double`(nanValue: String) {
+
+      val jsonString = """ { a: $nanValue } """
+      val parsedObject = j5.decodeObject(jsonString)
+
+      assertTrue(parsedObject.containsKey("a"))
+      assertTrue(
+        parsedObject["a"]?.jsonPrimitive?.doubleOrNull?.isInfinite() == true
+      )
+    }
   }
 
-  @ParameterizedTest
-  @ValueSource(strings = ["Infinity", "-Infinity", "+Infinity"])
-  fun `expect Infinity value is parsed to Infinite Double`(nanValue: String) {
+  @Nested
+  inner class UnicodeSurrogates {
 
-    val jsonString = """ { a: $nanValue } """
-    val parsedObject = j5.decodeObject(jsonString)
+    @Test
+    fun `expect unicode surrogate characters are escaped`() {
 
-    assertTrue(parsedObject.containsKey("a"))
-    assertTrue(
-      parsedObject["a"]?.jsonPrimitive?.doubleOrNull?.isInfinite() == true
-    )
+      val j5 = Json5Module {
+        quoteSingle = true
+        indentFactor = 0u
+      }
+
+      val encoded = j5.encodeToString(
+        buildJsonObject {
+          // U+D800 is a surrogate character and should therefore be escaped
+          put("escaped_surrogate_char", "\uD800")
+        }
+      )
+
+      encoded shouldBeEqualComparingTo """{'escaped_surrogate_char':'\uD800'}"""
+    }
+
+    @Test
+    fun testParseInvalidSurrogate() {
+
+      val j5 = Json5Module {
+        quoteSingle = true
+        allowInvalidSurrogates = false
+        indentFactor = 0u
+      }
+
+      val e = shouldThrow<JSONException.SyntaxError> {
+
+       val decoded = j5.decodeObject(
+          """
+            {
+              // invalid surrogate sequence (non-surrogate + high surrogate)
+              'escaped_surrogate_char':'A\uD800'
+            }
+          """.trimIndent()
+        )
+        println(decoded)
+      }
+
+      e.shouldHaveMessage("Invalid surrogate pair: U+0000 and U+0065, at index 70, character 4, line 3]")
+    }
   }
-
 }

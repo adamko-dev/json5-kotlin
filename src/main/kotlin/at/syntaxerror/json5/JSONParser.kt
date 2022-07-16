@@ -223,18 +223,20 @@ class JSONParser(
     return codepoint.toChar()
   }
 
-  private fun checkSurrogate(hi: Char, lo: Char) {
+  private fun checkSurrogate(high: Char, low: Char) {
     if (j5.options.allowInvalidSurrogates) {
       return
-    }
-    if (!Character.isHighSurrogate(hi) || !Character.isLowSurrogate(lo)) {
-      return
-    }
-    if (!Character.isSurrogatePair(hi, lo)) {
+    } else if (
+      (high.isHighSurrogate() && !low.isSurrogate())
+      ||
+      (!high.isSurrogate() && low.isLowSurrogate())
+      ||
+      !Character.isSurrogatePair(high, low)
+    ) {
       throw createSyntaxException(
         String.format(
           "Invalid surrogate pair: U+%04X and U+%04X",
-          hi, lo
+          high.code, low.code,
         )
       )
     }
@@ -254,6 +256,7 @@ class JSONParser(
       prev = n
       n = next()
       if (n == quote) {
+        checkSurrogate(prev, 0.toChar())
         break
       }
       if (isLineTerminator(n) && n.code != 0x2028 && n.code != 0x2029) {
@@ -383,6 +386,7 @@ class JSONParser(
         n = unicodeEscape(true, isNotEmpty)
       } else if (!isMemberNameChar(n, isNotEmpty)) {
         back()
+        checkSurrogate(prev, 0.toChar())
         break
       }
       checkSurrogate(prev, n)

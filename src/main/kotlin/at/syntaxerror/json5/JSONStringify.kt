@@ -25,6 +25,13 @@ package at.syntaxerror.json5
 
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.floatOrNull
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.longOrNull
 
 /**
  * A utility class for serializing [JSONObjects][DecodeJson5Object] and [JSONArrays][DecodeJson5Array]
@@ -36,9 +43,10 @@ class JSONStringify(
   private val options: JSONOptions
 ) {
 
-  private val quoteToken = if (options.quoteSingle) '\'' else '"'
-  private val emptyString = "$quoteToken$quoteToken"
-  private val indentFactor = options.indentFactor
+  private val quoteToken: Char get() = if (options.quoteSingle) '\'' else '"'
+  private val emptyString: String get() = "$quoteToken$quoteToken"
+  private val indentFactor: UInt get() = options.indentFactor
+  private val isIndented: Boolean get() = indentFactor > 0u
 
   /**
    * Converts a JSONObject into its string representation. The indentation factor enables
@@ -47,7 +55,8 @@ class JSONStringify(
    * characters.
    *
    * `indentFactor = 2`:
-   * ```
+   *
+   * ```json
    * {
    *   "key0": "value0",
    *   "key1": {
@@ -59,7 +68,7 @@ class JSONStringify(
    *
    * `indentFactor = 0`:
    *
-   * ```
+   * ```json
    * {"key0":"value0","key1":{"nested":123},"key2":false}
    * ```
    */
@@ -68,7 +77,6 @@ class JSONStringify(
     indent: String = "",
   ): String {
     val childIndent = indent + " ".repeat(indentFactor.toInt())
-    val isIndented = indentFactor > 0u
 
     val sb = StringBuilder()
     sb.append('{')
@@ -99,7 +107,8 @@ class JSONStringify(
    *
    *
    * `indentFactor = 2`:
-   * ```
+   *
+   * ```json
    * [
    *   "value",
    *   {
@@ -110,7 +119,8 @@ class JSONStringify(
    * ```
    *
    * `indentFactor = 0`:
-   * ```
+   *
+   * ```json
    * ["value",{"nested":123},false]
    * ```
    */
@@ -119,7 +129,6 @@ class JSONStringify(
     indent: String = "",
   ): String {
     val childIndent = indent + " ".repeat(indentFactor.toInt())
-    val isIndented = indentFactor > 0u
 
     val sb = StringBuilder()
     sb.append('[')
@@ -144,18 +153,21 @@ class JSONStringify(
     indent: String,
   ): String {
     return when (value) {
-      null          -> "null"
-      is JsonObject -> encodeObject(value, indent)
-      is JsonArray  -> encodeArray(value, indent)
-      is String     -> escapeString(value)
-      is Double     -> {
+      null             -> "null"
+
+      is JsonObject    -> encodeObject(value, indent)
+      is JsonArray     -> encodeArray(value, indent)
+      is JsonPrimitive -> encode(value.anyOrNull, indent)
+
+      is String        -> escapeString(value)
+      is Double        -> {
         when {
           !options.allowNaN && value.isNaN()           -> throw JSONException("Illegal NaN in JSON")
           !options.allowInfinity && value.isInfinite() -> throw JSONException("Illegal Infinity in JSON")
           else                                         -> value.toString()
         }
       }
-      else          -> value.toString()
+      else             -> value.toString()
     }
   }
 
@@ -172,6 +184,7 @@ class JSONStringify(
         ) { c: Char ->
 
           val formattedChar: String? = when (c) {
+            in listOf('\'', '\"')                 -> if (c == quoteToken) "\\$quoteToken" else "$c"
             quoteToken                            -> "\\$quoteToken"
             in Json5EscapeSequence.escapableChars -> Json5EscapeSequence.asEscapedString(c)
             else                                  -> when (c.category) {
@@ -181,12 +194,22 @@ class JSONStringify(
               CharCategory.CONTROL,
               CharCategory.PRIVATE_USE,
               CharCategory.SURROGATE,
-              CharCategory.UNASSIGNED -> String.format("\\u%04X", c)
+              CharCategory.UNASSIGNED -> String.format("\\u%04X", c.code)
               else                    -> null
             }
           }
           formattedChar ?: c.toString()
         }
     }
+  }
+
+  companion object {
+    private val JsonPrimitive.anyOrNull: Any?
+      get() = intOrNull
+        ?: longOrNull
+        ?: doubleOrNull
+        ?: floatOrNull
+        ?: booleanOrNull
+        ?: contentOrNull
   }
 }

@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  kotlin("jvm") version "1.6.10"
+  kotlin("jvm") version "1.7.10"
   jacoco
   `java-library`
   id("me.qoomon.git-versioning") version "5.1.1"
@@ -11,7 +11,7 @@ plugins {
 dependencies {
   implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
 
-  val kotlinxSerializationVersion = "1.3.1"
+  val kotlinxSerializationVersion = "1.3.3"
   implementation(platform("org.jetbrains.kotlinx:kotlinx-serialization-bom:$kotlinxSerializationVersion"))
   api("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
   api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
@@ -23,7 +23,7 @@ dependencies {
     because("Only needed to run tests in a version of IntelliJ IDEA that bundles older versions")
   }
 
-  val kotestVersion = "5.0.3"
+  val kotestVersion = "5.3.1"
   testImplementation(platform("io.kotest:kotest-bom:$kotestVersion"))
   testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
   testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
@@ -51,23 +51,23 @@ java {
 
 kotlin {
   jvmToolchain {
-    (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
+    languageVersion.set(JavaLanguageVersion.of(8))
   }
 }
 
 tasks.withType<KotlinCompile>().configureEach {
 
   kotlinOptions {
-    jvmTarget = "11"
-    apiVersion = "1.6"
-    languageVersion = "1.6"
+    jvmTarget = "1.8"
+    apiVersion = "1.7"
+    languageVersion = "1.7"
   }
 
   kotlinOptions.freeCompilerArgs += listOf(
-    "-Xopt-in=kotlin.RequiresOptIn",
-    "-Xopt-in=kotlin.ExperimentalStdlibApi",
-    "-Xopt-in=kotlin.time.ExperimentalTime",
-    "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi",
+    "-opt-in=kotlin.RequiresOptIn",
+    "-opt-in=kotlin.ExperimentalStdlibApi",
+    "-opt-in=kotlin.time.ExperimentalTime",
+    "-opt-in=kotlinx.serialization.ExperimentalSerializationApi",
   )
 }
 
@@ -78,7 +78,7 @@ tasks.withType<Test> {
 }
 
 jacoco {
-  toolVersion = "0.8.7"
+  toolVersion = "0.8.8"
 }
 
 tasks.withType<JacocoReport> {
@@ -103,7 +103,7 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.wrapper {
-  gradleVersion = "7.3.3"
+  gradleVersion = "7.5"
   distributionType = Wrapper.DistributionType.ALL
 }
 tasks.assemble { dependsOn(tasks.wrapper) }
