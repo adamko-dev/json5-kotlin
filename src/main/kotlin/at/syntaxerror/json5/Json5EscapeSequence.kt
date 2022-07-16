@@ -20,12 +20,13 @@ enum class Json5EscapeSequence(
   ;
 
   companion object {
-    private val mapCharToRepresentation = values().associate { it.char to it.escaped }
+    private val mapCharToRepresentation: Map<Char, String> =
+      values().associate { it.char to it.escaped }
 
-    val escapableChars = values().map { it.char }
+    val escapableChars: List<Char> = values().map { it.char }
 
     fun asEscapedString(char: Char): String? = mapCharToRepresentation[char]
 
-    fun isEscapable(char: Char) = mapCharToRepresentation.containsKey(char)
+    fun isEscapable(char: Char): Boolean = mapCharToRepresentation.containsKey(char)
   }
 }
