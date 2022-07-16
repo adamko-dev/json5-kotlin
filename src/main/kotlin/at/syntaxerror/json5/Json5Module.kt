@@ -6,21 +6,18 @@ import java.io.InputStreamReader
 import java.io.Reader
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import org.intellij.lang.annotations.Language
 
 class Json5Module(
   configure: JSONOptions.() -> Unit = {}
 ) {
-  internal val options: JSONOptions = JSONOptions()
+  internal val options: JSONOptions = JSONOptions().apply(configure)
   internal val stringify: JSONStringify = JSONStringify(options)
 
-  internal val arrayDecoder = DecodeJson5Array()
-  internal val objectDecoder = DecodeJson5Object(this)
+  internal val arrayDecoder: DecodeJson5Array = DecodeJson5Array()
+  internal val objectDecoder: DecodeJson5Object = DecodeJson5Object(this)
 
-  init {
-    options.configure()
-  }
-
-  fun decodeObject(string: String): JsonObject = decodeObject(string.reader())
+  fun decodeObject(@Language("JSON5") string: String): JsonObject = decodeObject(string.reader())
   fun decodeObject(stream: InputStream): JsonObject = decodeObject(InputStreamReader(stream))
 
   fun decodeObject(reader: Reader): JsonObject {
@@ -30,7 +27,7 @@ class Json5Module(
     }
   }
 
-  fun decodeArray(string: String): JsonArray = decodeArray(string.reader())
+  fun decodeArray(@Language("JSON5") string: String): JsonArray = decodeArray(string.reader())
   fun decodeArray(stream: InputStream): JsonArray = decodeArray(InputStreamReader(stream))
 
   fun decodeArray(reader: Reader): JsonArray {

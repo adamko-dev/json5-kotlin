@@ -64,5 +64,5 @@ data class JSONOptions(
    */
   var quoteSingle: Boolean = false,
 
-  var indentFactor: UInt = 2u
+  var indentFactor: UInt = 2u,
 )

@@ -36,9 +36,10 @@ class JSONStringify(
   private val options: JSONOptions
 ) {
 
-  private val quoteToken = if (options.quoteSingle) '\'' else '"'
-  private val emptyString = "$quoteToken$quoteToken"
-  private val indentFactor = options.indentFactor
+  private val quoteToken: Char get() = if (options.quoteSingle) '\'' else '"'
+  private val emptyString: String get() = "$quoteToken$quoteToken"
+  private val indentFactor: UInt get() = options.indentFactor
+  private val isIndented: Boolean get() = indentFactor > 0u
 
   /**
    * Converts a JSONObject into its string representation. The indentation factor enables
@@ -47,7 +48,8 @@ class JSONStringify(
    * characters.
    *
    * `indentFactor = 2`:
-   * ```
+   *
+   * ```json
    * {
    *   "key0": "value0",
    *   "key1": {
@@ -59,7 +61,7 @@ class JSONStringify(
    *
    * `indentFactor = 0`:
    *
-   * ```
+   * ```json
    * {"key0":"value0","key1":{"nested":123},"key2":false}
    * ```
    */
@@ -99,7 +101,8 @@ class JSONStringify(
    *
    *
    * `indentFactor = 2`:
-   * ```
+   *
+   * ```json
    * [
    *   "value",
    *   {
@@ -110,7 +113,8 @@ class JSONStringify(
    * ```
    *
    * `indentFactor = 0`:
-   * ```
+   *
+   * ```json
    * ["value",{"nested":123},false]
    * ```
    */
