@@ -1,12 +1,8 @@
-# WORK IN PROGRESS
-
-I'm hacking around with this at the moment - almost nothing is tested.
-
-The intention is to integrate with Kotlinx Serialization.
+[![](https://jitpack.io/v/adamko-dev/json5-kotlin.svg?style=flat-square)](https://jitpack.io/#adamko-dev/json5-kotlin)
 
 # json5 Kotlin
 
-A JSON5 Library for Kotlin 1.6, Java 11
+A JSON5 Library for Kotlin.
 
 ## Overview
 
@@ -25,7 +21,7 @@ repositories {
 }
 
 dependencies {
-  implementation("adamko-dev:json5-kotlin:${version}")
+  implementation("com.github.adamko-dev:json5-kotlin:$json5KotlinVersion")
 }
 ```
 
@@ -43,7 +39,7 @@ Maven:
 ```xml
 <dependencies>
   <dependency>
-    <groupId>adamko-dev</groupId>
+	  <groupId>com.github.adamko-dev</groupId>
     <artifactId>json5-kotlin</artifactId>
     <version>${json5-kotlin.version}</version>
   </dependency>
