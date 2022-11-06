@@ -1,6 +1,16 @@
+# ⚠️ Status - recommended replacement: https://github.com/xn32/json5k
+
+[json5-kotlin](https://github.com/adamko-dev/json5-kotlin) was made as a proof-of-concept, and while it works, I have not made any further development efforts. 
+
+You are welcome to use this library, however I recommend you use https://github.com/xn32/json5k instead, because it better supports Kotlinx Serialization.
+
+----
+----
+----
+
 [![](https://jitpack.io/v/adamko-dev/json5-kotlin.svg?style=flat-square)](https://jitpack.io/#adamko-dev/json5-kotlin)
 
-# json5 Kotlin
+# [json5 Kotlin](https://github.com/adamko-dev/json5-kotlin)
 
 A JSON5 Library for Kotlin.
 
